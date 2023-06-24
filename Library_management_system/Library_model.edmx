@@ -1,0 +1,438 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="project_libraryModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Book">
+          <Key>
+            <PropertyRef Name="BookID" />
+          </Key>
+          <Property Name="BookID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ISBN" Type="nvarchar" MaxLength="50" />
+          <Property Name="title" Type="nvarchar" MaxLength="50" />
+          <Property Name="author" Type="nvarchar" MaxLength="50" />
+          <Property Name="edition" Type="int" />
+          <Property Name="price" Type="float" />
+          <Property Name="BookState_number" Type="int" />
+        </EntityType>
+        <EntityType Name="Book_borrowed">
+          <Key>
+            <PropertyRef Name="brBook_ID" />
+          </Key>
+          <Property Name="brBook_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="BookID" Type="int" />
+          <Property Name="Borrower_ID" Type="int" />
+          <Property Name="brBook_date" Type="date" />
+          <Property Name="expected_return" Type="date" />
+          <Property Name="return_date" Type="date" />
+        </EntityType>
+        <EntityType Name="Borrower">
+          <Key>
+            <PropertyRef Name="Borrower_ID" />
+          </Key>
+          <Property Name="Borrower_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Br_UN" Type="nvarchar" MaxLength="50" />
+          <Property Name="Br_pass" Type="nvarchar" MaxLength="50" />
+          <Property Name="block_user" Type="bit" />
+          <Property Name="block_date" Type="date" />
+          <Property Name="notAllowed_user" Type="bit" />
+          <Property Name="date_count" Type="int" />
+        </EntityType>
+        <EntityType Name="fines_category">
+          <Key>
+            <PropertyRef Name="fines_number" />
+          </Key>
+          <Property Name="fines_number" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="fines_category" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="Libarian">
+          <Key>
+            <PropertyRef Name="libarian_ID" />
+          </Key>
+          <Property Name="libarian_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="libarian_UN" Type="nvarchar" MaxLength="50" />
+          <Property Name="libarian_pass" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="pay_fines">
+          <Key>
+            <PropertyRef Name="fines_ID" />
+          </Key>
+          <Property Name="fines_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="brBook_ID" Type="int" />
+          <Property Name="delay_days" Type="int" />
+          <Property Name="payment" Type="float" />
+          <Property Name="fines_number" Type="int" />
+        </EntityType>
+        <EntityType Name="StateBook">
+          <Key>
+            <PropertyRef Name="bookState_number" />
+          </Key>
+          <Property Name="bookState_number" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="book_state" Type="nvarchar" MaxLength="50" />
+        </EntityType>
+        <Association Name="FK_Book_borrowed_Book">
+          <End Role="Book" Type="Self.Book" Multiplicity="0..1" />
+          <End Role="Book_borrowed" Type="Self.Book_borrowed" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Book">
+              <PropertyRef Name="BookID" />
+            </Principal>
+            <Dependent Role="Book_borrowed">
+              <PropertyRef Name="BookID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Book_borrowed_Borrower">
+          <End Role="Borrower" Type="Self.Borrower" Multiplicity="0..1" />
+          <End Role="Book_borrowed" Type="Self.Book_borrowed" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Borrower">
+              <PropertyRef Name="Borrower_ID" />
+            </Principal>
+            <Dependent Role="Book_borrowed">
+              <PropertyRef Name="Borrower_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Book_StateBook">
+          <End Role="StateBook" Type="Self.StateBook" Multiplicity="0..1" />
+          <End Role="Book" Type="Self.Book" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="StateBook">
+              <PropertyRef Name="bookState_number" />
+            </Principal>
+            <Dependent Role="Book">
+              <PropertyRef Name="BookState_number" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_pay_fines_Book_borrowed">
+          <End Role="Book_borrowed" Type="Self.Book_borrowed" Multiplicity="0..1" />
+          <End Role="pay_fines" Type="Self.pay_fines" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Book_borrowed">
+              <PropertyRef Name="brBook_ID" />
+            </Principal>
+            <Dependent Role="pay_fines">
+              <PropertyRef Name="brBook_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_pay_fines_fines_category">
+          <End Role="fines_category" Type="Self.fines_category" Multiplicity="0..1" />
+          <End Role="pay_fines" Type="Self.pay_fines" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="fines_category">
+              <PropertyRef Name="fines_number" />
+            </Principal>
+            <Dependent Role="pay_fines">
+              <PropertyRef Name="fines_number" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="project_libraryModelStoreContainer">
+          <EntitySet Name="Book" EntityType="Self.Book" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Book_borrowed" EntityType="Self.Book_borrowed" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Borrower" EntityType="Self.Borrower" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="fines_category" EntityType="Self.fines_category" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Libarian" EntityType="Self.Libarian" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="pay_fines" EntityType="Self.pay_fines" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="StateBook" EntityType="Self.StateBook" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Book_borrowed_Book" Association="Self.FK_Book_borrowed_Book">
+            <End Role="Book" EntitySet="Book" />
+            <End Role="Book_borrowed" EntitySet="Book_borrowed" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Book_borrowed_Borrower" Association="Self.FK_Book_borrowed_Borrower">
+            <End Role="Borrower" EntitySet="Borrower" />
+            <End Role="Book_borrowed" EntitySet="Book_borrowed" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Book_StateBook" Association="Self.FK_Book_StateBook">
+            <End Role="StateBook" EntitySet="StateBook" />
+            <End Role="Book" EntitySet="Book" />
+          </AssociationSet>
+          <AssociationSet Name="FK_pay_fines_Book_borrowed" Association="Self.FK_pay_fines_Book_borrowed">
+            <End Role="Book_borrowed" EntitySet="Book_borrowed" />
+            <End Role="pay_fines" EntitySet="pay_fines" />
+          </AssociationSet>
+          <AssociationSet Name="FK_pay_fines_fines_category" Association="Self.FK_pay_fines_fines_category">
+            <End Role="fines_category" EntitySet="fines_category" />
+            <End Role="pay_fines" EntitySet="pay_fines" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="project_libraryModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Book">
+          <Key>
+            <PropertyRef Name="BookID" />
+          </Key>
+          <Property Name="BookID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ISBN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="title" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="author" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="edition" Type="Int32" />
+          <Property Name="price" Type="Double" />
+          <Property Name="BookState_number" Type="Int32" />
+          <NavigationProperty Name="Book_borrowed" Relationship="Self.FK_Book_borrowed_Book" FromRole="Book" ToRole="Book_borrowed" />
+          <NavigationProperty Name="StateBook" Relationship="Self.FK_Book_StateBook" FromRole="Book" ToRole="StateBook" />
+        </EntityType>
+        <EntityType Name="Book_borrowed">
+          <Key>
+            <PropertyRef Name="brBook_ID" />
+          </Key>
+          <Property Name="brBook_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="BookID" Type="Int32" />
+          <Property Name="Borrower_ID" Type="Int32" />
+          <Property Name="brBook_date" Type="DateTime" Precision="0" />
+          <Property Name="expected_return" Type="DateTime" Precision="0" />
+          <Property Name="return_date" Type="DateTime" Precision="0" />
+          <NavigationProperty Name="Book" Relationship="Self.FK_Book_borrowed_Book" FromRole="Book_borrowed" ToRole="Book" />
+          <NavigationProperty Name="Borrower" Relationship="Self.FK_Book_borrowed_Borrower" FromRole="Book_borrowed" ToRole="Borrower" />
+          <NavigationProperty Name="pay_fines" Relationship="Self.FK_pay_fines_Book_borrowed" FromRole="Book_borrowed" ToRole="pay_fines" />
+        </EntityType>
+        <EntityType Name="Borrower">
+          <Key>
+            <PropertyRef Name="Borrower_ID" />
+          </Key>
+          <Property Name="Borrower_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Br_UN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Br_pass" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="block_user" Type="Boolean" />
+          <Property Name="block_date" Type="DateTime" Precision="0" />
+          <Property Name="notAllowed_user" Type="Boolean" />
+          <Property Name="date_count" Type="Int32" />
+          <NavigationProperty Name="Book_borrowed" Relationship="Self.FK_Book_borrowed_Borrower" FromRole="Borrower" ToRole="Book_borrowed" />
+        </EntityType>
+        <EntityType Name="fines_category">
+          <Key>
+            <PropertyRef Name="fines_number" />
+          </Key>
+          <Property Name="fines_number" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="fines_category1" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="pay_fines" Relationship="Self.FK_pay_fines_fines_category" FromRole="fines_category" ToRole="pay_fines" />
+        </EntityType>
+        <EntityType Name="Libarian">
+          <Key>
+            <PropertyRef Name="libarian_ID" />
+          </Key>
+          <Property Name="libarian_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="libarian_UN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="libarian_pass" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="pay_fines">
+          <Key>
+            <PropertyRef Name="fines_ID" />
+          </Key>
+          <Property Name="fines_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="brBook_ID" Type="Int32" />
+          <Property Name="delay_days" Type="Int32" />
+          <Property Name="payment" Type="Double" />
+          <Property Name="fines_number" Type="Int32" />
+          <NavigationProperty Name="Book_borrowed" Relationship="Self.FK_pay_fines_Book_borrowed" FromRole="pay_fines" ToRole="Book_borrowed" />
+          <NavigationProperty Name="fines_category" Relationship="Self.FK_pay_fines_fines_category" FromRole="pay_fines" ToRole="fines_category" />
+        </EntityType>
+        <EntityType Name="StateBook">
+          <Key>
+            <PropertyRef Name="bookState_number" />
+          </Key>
+          <Property Name="bookState_number" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="book_state" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Book" Relationship="Self.FK_Book_StateBook" FromRole="StateBook" ToRole="Book" />
+        </EntityType>
+        <Association Name="FK_Book_borrowed_Book">
+          <End Role="Book" Type="Self.Book" Multiplicity="0..1" />
+          <End Role="Book_borrowed" Type="Self.Book_borrowed" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Book">
+              <PropertyRef Name="BookID" />
+            </Principal>
+            <Dependent Role="Book_borrowed">
+              <PropertyRef Name="BookID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Book_StateBook">
+          <End Role="StateBook" Type="Self.StateBook" Multiplicity="0..1" />
+          <End Role="Book" Type="Self.Book" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="StateBook">
+              <PropertyRef Name="bookState_number" />
+            </Principal>
+            <Dependent Role="Book">
+              <PropertyRef Name="BookState_number" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Book_borrowed_Borrower">
+          <End Role="Borrower" Type="Self.Borrower" Multiplicity="0..1" />
+          <End Role="Book_borrowed" Type="Self.Book_borrowed" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Borrower">
+              <PropertyRef Name="Borrower_ID" />
+            </Principal>
+            <Dependent Role="Book_borrowed">
+              <PropertyRef Name="Borrower_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_pay_fines_Book_borrowed">
+          <End Role="Book_borrowed" Type="Self.Book_borrowed" Multiplicity="0..1" />
+          <End Role="pay_fines" Type="Self.pay_fines" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Book_borrowed">
+              <PropertyRef Name="brBook_ID" />
+            </Principal>
+            <Dependent Role="pay_fines">
+              <PropertyRef Name="brBook_ID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_pay_fines_fines_category">
+          <End Role="fines_category" Type="Self.fines_category" Multiplicity="0..1" />
+          <End Role="pay_fines" Type="Self.pay_fines" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="fines_category">
+              <PropertyRef Name="fines_number" />
+            </Principal>
+            <Dependent Role="pay_fines">
+              <PropertyRef Name="fines_number" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="project_libraryEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Book" EntityType="Self.Book" />
+          <EntitySet Name="Book_borrowed" EntityType="Self.Book_borrowed" />
+          <EntitySet Name="Borrower" EntityType="Self.Borrower" />
+          <EntitySet Name="fines_category" EntityType="Self.fines_category" />
+          <EntitySet Name="Libarian" EntityType="Self.Libarian" />
+          <EntitySet Name="pay_fines" EntityType="Self.pay_fines" />
+          <EntitySet Name="StateBook" EntityType="Self.StateBook" />
+          <AssociationSet Name="FK_Book_borrowed_Book" Association="Self.FK_Book_borrowed_Book">
+            <End Role="Book" EntitySet="Book" />
+            <End Role="Book_borrowed" EntitySet="Book_borrowed" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Book_StateBook" Association="Self.FK_Book_StateBook">
+            <End Role="StateBook" EntitySet="StateBook" />
+            <End Role="Book" EntitySet="Book" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Book_borrowed_Borrower" Association="Self.FK_Book_borrowed_Borrower">
+            <End Role="Borrower" EntitySet="Borrower" />
+            <End Role="Book_borrowed" EntitySet="Book_borrowed" />
+          </AssociationSet>
+          <AssociationSet Name="FK_pay_fines_Book_borrowed" Association="Self.FK_pay_fines_Book_borrowed">
+            <End Role="Book_borrowed" EntitySet="Book_borrowed" />
+            <End Role="pay_fines" EntitySet="pay_fines" />
+          </AssociationSet>
+          <AssociationSet Name="FK_pay_fines_fines_category" Association="Self.FK_pay_fines_fines_category">
+            <End Role="fines_category" EntitySet="fines_category" />
+            <End Role="pay_fines" EntitySet="pay_fines" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="project_libraryModelStoreContainer" CdmEntityContainer="project_libraryEntities">
+          <EntitySetMapping Name="Book">
+            <EntityTypeMapping TypeName="project_libraryModel.Book">
+              <MappingFragment StoreEntitySet="Book">
+                <ScalarProperty Name="BookID" ColumnName="BookID" />
+                <ScalarProperty Name="ISBN" ColumnName="ISBN" />
+                <ScalarProperty Name="title" ColumnName="title" />
+                <ScalarProperty Name="author" ColumnName="author" />
+                <ScalarProperty Name="edition" ColumnName="edition" />
+                <ScalarProperty Name="price" ColumnName="price" />
+                <ScalarProperty Name="BookState_number" ColumnName="BookState_number" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Book_borrowed">
+            <EntityTypeMapping TypeName="project_libraryModel.Book_borrowed">
+              <MappingFragment StoreEntitySet="Book_borrowed">
+                <ScalarProperty Name="brBook_ID" ColumnName="brBook_ID" />
+                <ScalarProperty Name="BookID" ColumnName="BookID" />
+                <ScalarProperty Name="Borrower_ID" ColumnName="Borrower_ID" />
+                <ScalarProperty Name="brBook_date" ColumnName="brBook_date" />
+                <ScalarProperty Name="expected_return" ColumnName="expected_return" />
+                <ScalarProperty Name="return_date" ColumnName="return_date" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Borrower">
+            <EntityTypeMapping TypeName="project_libraryModel.Borrower">
+              <MappingFragment StoreEntitySet="Borrower">
+                <ScalarProperty Name="Borrower_ID" ColumnName="Borrower_ID" />
+                <ScalarProperty Name="Br_UN" ColumnName="Br_UN" />
+                <ScalarProperty Name="Br_pass" ColumnName="Br_pass" />
+                <ScalarProperty Name="block_user" ColumnName="block_user" />
+                <ScalarProperty Name="block_date" ColumnName="block_date" />
+                <ScalarProperty Name="notAllowed_user" ColumnName="notAllowed_user" />
+                <ScalarProperty Name="date_count" ColumnName="date_count" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="fines_category">
+            <EntityTypeMapping TypeName="project_libraryModel.fines_category">
+              <MappingFragment StoreEntitySet="fines_category">
+                <ScalarProperty Name="fines_number" ColumnName="fines_number" />
+                <ScalarProperty Name="fines_category1" ColumnName="fines_category" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Libarian">
+            <EntityTypeMapping TypeName="project_libraryModel.Libarian">
+              <MappingFragment StoreEntitySet="Libarian">
+                <ScalarProperty Name="libarian_ID" ColumnName="libarian_ID" />
+                <ScalarProperty Name="libarian_UN" ColumnName="libarian_UN" />
+                <ScalarProperty Name="libarian_pass" ColumnName="libarian_pass" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="pay_fines">
+            <EntityTypeMapping TypeName="project_libraryModel.pay_fines">
+              <MappingFragment StoreEntitySet="pay_fines">
+                <ScalarProperty Name="fines_ID" ColumnName="fines_ID" />
+                <ScalarProperty Name="brBook_ID" ColumnName="brBook_ID" />
+                <ScalarProperty Name="delay_days" ColumnName="delay_days" />
+                <ScalarProperty Name="payment" ColumnName="payment" />
+                <ScalarProperty Name="fines_number" ColumnName="fines_number" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="StateBook">
+            <EntityTypeMapping TypeName="project_libraryModel.StateBook">
+              <MappingFragment StoreEntitySet="StateBook">
+                <ScalarProperty Name="bookState_number" ColumnName="bookState_number" />
+                <ScalarProperty Name="book_state" ColumnName="book_state" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="true" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
